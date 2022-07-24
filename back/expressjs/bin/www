@@ -1,20 +1,22 @@
 #!/usr/bin/env node
 
+require("dotenv").config();
+
 /**
  * Module dependencies.
  */
 
-var app = require('../app');
-var debug = require('debug')('expressjs:server');
-var http = require('http');
+var app = require("../app");
+var debug = require("debug")("expressjs:server");
+var http = require("http");
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3001');
-console.log('http://localhost:3001/')
-app.set('port', port);
+var port = normalizePort(process.env.PORT || "3001");
+console.log("http://localhost:3001/");
+app.set("port", port);
 
 /**
  * Create HTTP server.
@@ -27,8 +29,8 @@ var server = http.createServer(app);
  */
 
 server.listen(port);
-server.on('error', onError);
-server.on('listening', onListening);
+server.on("error", onError);
+server.on("listening", onListening);
 
 /**
  * Normalize a port into a number, string, or false.
@@ -55,22 +57,20 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
+  if (error.syscall !== "listen") {
     throw error;
   }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+  var bind = typeof port === "string" ? "Pipe " + port : "Port " + port;
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
       process.exit(1);
       break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
       process.exit(1);
       break;
     default:
@@ -84,8 +84,26 @@ function onError(error) {
 
 function onListening() {
   var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+  var bind = typeof addr === "string" ? "pipe " + addr : "port " + addr.port;
+  debug("Listening on " + bind);
 }
+
+const mongoose = require("mongoose");
+
+const DB_URL = process.env.MONGODB_URL || "";
+console.log("DB_URL: ", DB_URL);
+if (DB_URL === "") {
+  throw new Error(
+    "MongoDB 서버 주소가 설정되지 않았습니다.\n./db/index.js 파일을 확인해 주세요."
+  );
+}
+
+mongoose.connect(DB_URL);
+const db = mongoose.connection;
+
+db.on("connected", () =>
+  console.log("정상적으로 MongoDB 서버에 연결되었습니다.  " + DB_URL)
+);
+db.on("error", (error) =>
+  console.error("MongoDB 연결에 실패하였습니다...\n" + DB_URL + "\n" + error)
+);
