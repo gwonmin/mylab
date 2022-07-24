@@ -1,1 +1,4 @@
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
+import { User } from "./models/User";
+
+export { User };
