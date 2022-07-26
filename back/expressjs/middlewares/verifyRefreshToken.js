@@ -23,7 +23,6 @@ const verifyRefresh = async function (req, res, next) {
         message: "No authorization",
       });
     }
-
     /* access token의 decoding 된 값에서
         유저의 id를 가져와 refresh token을 검증합니다. */
     const refreshResult = await verifyRefreshToken(
@@ -56,7 +55,7 @@ const verifyRefresh = async function (req, res, next) {
       // 3. access token이 만료되지 않은경우 => refresh 할 필요가 없습니다.
       return res.status(400).send({
         ok: false,
-        message: "Acess token is not expired!",
+        message: "Access token is not expired!",
       });
     }
   } else {

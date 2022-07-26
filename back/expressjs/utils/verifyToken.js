@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
-import { Token } from "../db";
 import dotenv from "dotenv";
+import redisClient from "./redis";
 
 dotenv.config();
 
@@ -24,9 +24,13 @@ const verifyAccessToken = function (token) {
 
 // refresh token 유효성 검사
 const verifyRefreshToken = async function (token, userId) {
+  // redis 서버에서 refreshToken값을 가져오기 위한 async function
+  async function getVal(key) {
+    return await redisClient.get(key);
+  }
+
   try {
-    // db에서 refresh token 가져오기
-    const { refreshToken } = await Token.findToken(userId);
+    const refreshToken = await getVal(userId);
     if (token === refreshToken) {
       try {
         jwt.verify(token, JWT_KEY);

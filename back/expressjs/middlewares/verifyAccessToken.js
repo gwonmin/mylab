@@ -18,7 +18,7 @@ const verifyAccessToken = async function (req, res, next) {
       next();
     }
   } catch (error) {
-    res.status(401).json({
+    return res.status(401).json({
       status: "fail",
       message: "token이 변형되었습니다.",
       error,

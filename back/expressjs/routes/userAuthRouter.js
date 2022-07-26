@@ -84,59 +84,71 @@ userAuthRouter.get(
   }
 );
 
-userAuthRouter.put("/:id", verifyAccessToken, async function (req, res, next) {
-  try {
-    // URI로부터 사용자 id를 추출함.
-    const user_id = req.params.id;
-    // body data 로부터 업데이트할 사용자 정보를 추출함.
-    const name = req.body.name ?? null;
-    const email = req.body.email ?? null;
-    const password = req.body.password ?? null;
+userAuthRouter.put(
+  "/admin/:id",
+  verifyAccessToken,
+  async function (req, res, next) {
+    try {
+      // URI로부터 사용자 id를 추출함.
+      const user_id = req.params.id;
+      // body data 로부터 업데이트할 사용자 정보를 추출함.
+      const name = req.body.name ?? null;
+      const email = req.body.email ?? null;
+      const password = req.body.password ?? null;
 
-    const toUpdate = { name, email, password };
+      const toUpdate = { name, email, password };
 
-    // 해당 사용자 아이디로 사용자 정보를 db에서 찾아 업데이트함. 업데이트 요소가 없을 시 생략함
-    const updatedUser = await userAuthService.setUser({ user_id, toUpdate });
+      // 해당 사용자 아이디로 사용자 정보를 db에서 찾아 업데이트함. 업데이트 요소가 없을 시 생략함
+      const updatedUser = await userAuthService.setUser({ user_id, toUpdate });
 
-    if (updatedUser.errorMessage) {
-      throw new Error(updatedUser.errorMessage);
+      if (updatedUser.errorMessage) {
+        throw new Error(updatedUser.errorMessage);
+      }
+
+      res.status(200).json(updatedUser);
+    } catch (error) {
+      next(error);
     }
-
-    res.status(200).json(updatedUser);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
-userAuthRouter.get("/:id", verifyAccessToken, async function (req, res, next) {
-  try {
-    const user_id = req.params.id;
-    const currentUserInfo = await userAuthService.getUserInfo({ user_id });
+userAuthRouter.get(
+  "/admin/:id",
+  verifyAccessToken,
+  async function (req, res, next) {
+    try {
+      const user_id = req.params.id;
+      const currentUserInfo = await userAuthService.getUserInfo({ user_id });
 
-    if (currentUserInfo.errorMessage) {
-      throw new Error(currentUserInfo.errorMessage);
+      if (currentUserInfo.errorMessage) {
+        throw new Error(currentUserInfo.errorMessage);
+      }
+
+      res.status(200).send(currentUserInfo);
+    } catch (error) {
+      next(error);
     }
-
-    res.status(200).send(currentUserInfo);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
-userAuthRouter.delete("/:id", verifyAccessToken, async (req, res, next) => {
-  try {
-    const id = req.params.id;
-    const deletedUser = await userAuthService.deleteUser({ id });
+userAuthRouter.delete(
+  "/admin/:id",
+  verifyAccessToken,
+  async (req, res, next) => {
+    try {
+      const id = req.params.id;
+      const deletedUser = await userAuthService.deleteUser({ id });
 
-    if (deletedUser.errorMessage) {
-      throw new Error(updatedUser.errorMessage);
+      if (deletedUser.errorMessage) {
+        throw new Error(updatedUser.errorMessage);
+      }
+
+      res.status(200).json(deletedUser);
+    } catch (error) {
+      next(error);
     }
-
-    res.status(200).json(deletedUser);
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 /* access token을 재발급 하기 위한 router.
   access token과 refresh token을 둘 다 헤더에 담아서 요청해야함 */

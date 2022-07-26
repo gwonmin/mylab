@@ -1,6 +1,7 @@
-import { User, Token } from "../db"; // from을 폴더(db) 로 설정 시, 디폴트로 index.js 로부터 import함.
+import { User } from "../db"; // from을 폴더(db) 로 설정 시, 디폴트로 index.js 로부터 import함.
 import bcrypt from "bcrypt";
 import { makeAccessToken, makeRefreshToken } from "../utils/makeToken";
+import redisClient from "../utils/redis";
 
 class userAuthService {
   static async addUser({ first_name, last_name, email, password }) {
@@ -52,14 +53,15 @@ class userAuthService {
     // 로그인 성공 -> JWT 웹 토큰 생성
     const accessToken = makeAccessToken({ userId: userId });
     const refreshToken = makeRefreshToken();
-    const setRefreshToken = await Token.updateRefresh({
-      _id: userId,
-      refreshToken,
-    });
+
+    // 발급한 refresh token을 redis에 key를 user의 id로 하여 저장합니다.
+    // redis 서버에 refreshToken값을 저장하기 위한 async function
+    async function setVal(key, value) {
+      await redisClient.set(key, value);
+    }
+    setVal(userId, refreshToken);
 
     // 반환할 loginuser 객체를 위한 변수 설정
-    const name = user.name;
-
     const loginUser = {
       user,
       accessToken,
